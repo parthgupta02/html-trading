@@ -51,8 +51,65 @@
 
     <div id="app" class="max-w-6xl mx-auto pt-4">
 
-        <!-- Main App Container - Now visible by default -->
-        <div id="main-app-container">
+        <!-- NEW: Auth Container (Login / Register) - Shown by default -->
+        <div id="auth-container">
+            <!-- Login View -->
+            <div id="login-view" class="page-view max-w-md mx-auto bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
+                <h2 class="text-3xl font-bold text-center text-white mb-6">Login</h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <!-- CHANGED from Username to Mobile Number -->
+                        <label for="login-username" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
+                        <input type="tel" id="login-username" required placeholder="Enter 10-digit number"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                        <input type="password" id="login-password" required
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
+                    <p id="login-error" class="text-red-400 text-sm hidden"></p>
+                    <button type="submit" id="login-button"
+                            class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition duration-150">
+                        Login
+                    </button>
+                </form>
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    Don't have an account? 
+                    <a href="#register" id="goto-register-link" class="font-medium text-blue-400 hover:underline">Sign Up</a>
+                </p>
+            </div>
+
+            <!-- Register View -->
+            <div id="register-view" class="page-view max-w-md mx-auto bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
+                <h2 class="text-3xl font-bold text-center text-white mb-6">Create Account</h2>
+                <form id="register-form" class="space-y-4">
+                    <div>
+                        <!-- CHANGED from Username to Mobile Number -->
+                        <label for="register-username" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
+                        <input type="tel" id="register-username" required minlength="10" maxlength="10" placeholder="Enter 10-digit number"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                        <input type="password" id="register-password" required minlength="6"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
+                    <p id="register-error" class="text-red-400 text-sm hidden"></p>
+                    <button type="submit" id="register-button"
+                            class="w-full py-2 px-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow-md transition duration-150">
+                        Create Account
+                    </button>
+                </form>
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    Already have an account? 
+                    <a href="#login" id="goto-login-link" class="font-medium text-blue-400 hover:underline">Login</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- NEW: Main App Container - Hidden by default -->
+        <div id="main-app-container" class="hidden">
             <!-- Navigation Bar -->
             <nav class="mb-6 p-2 bg-gray-800 rounded-xl shadow-lg flex justify-start flex-nowrap overflow-x-auto space-x-2 sm:space-x-4 border border-gray-700"> 
                 <a href="#dashboard" id="nav-dashboard" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
@@ -67,9 +124,9 @@
                 <a href="#report" id="nav-report" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
                     Report
                 </a>
-                <!-- Renamed Profile back to Settings -->
-                <a href="#settings" id="nav-settings" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
-                    Settings
+                <!-- Renamed Settings to Profile -->
+                <a href="#profile" id="nav-profile" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                    Profile
                 </a>
             </nav>
             
@@ -112,7 +169,33 @@
                         </div>
                         <p id="silver-trade-count" class="text-sm text-gray-400 mt-4 text-center">Based on 0 trades this week.</p>
                     </div>
+
                 </div>
+
+                <!-- NEW: Gemini Market Insights Card -->
+                <div id="market-insights-card" class="mt-6 bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-2xl font-bold text-blue-400 mb-4">✨ Market Insights</h2>
+                    <button id="get-market-insights-button" class="w-full sm:w-auto py-2 px-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Get Latest News
+                    </button>
+                    
+                    <!-- Loading Spinner -->
+                    <div id="insights-loading" class="hidden mt-4 flex justify-center items-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-400"></div>
+                        <p class="ml-3 text-gray-300">Fetching live market data...</p>
+                    </div>
+
+                    <!-- AI Content Area -->
+                    <div id="insights-content" class="mt-4 text-gray-300 text-sm leading-relaxed">
+                        <!-- AI-generated content will appear here -->
+                    </div>
+                    
+                    <!-- AI Sources Area -->
+                    <div id="insights-sources" class="mt-4 text-xs">
+                        <!-- AI-generated sources will appear here -->
+                    </div>
+                </div>
+
             </div>
 
             <!-- GOLD MINI TRADE ENTRY VIEW -->
@@ -132,9 +215,8 @@
                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-red-500 focus:border-red-500 transition duration-150">
                         </div>
                         <div class="col-span-2 sm:col-span-1 flex items-end">
-                            <!-- Removed 'disabled' -->
-                            <button type="submit" id="gold-submit-button"
-                                    class="w-full py-2 px-4 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-md transition duration-150">
+                            <button type="submit" id="gold-submit-button" disabled
+                                    class="w-full py-2 px-4 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Add Gold Trade
                             </button>
                         </div>
@@ -180,9 +262,8 @@
                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-red-500 focus:border-red-500 transition duration-150">
                         </div>
                         <div class="col-span-2 sm:col-span-1 flex items-end">
-                            <!-- Removed 'disabled' -->
-                            <button type="submit" id="silver-submit-button"
-                                    class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition duration-150">
+                            <button type="submit" id="silver-submit-button" disabled
+                                    class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Add Silver Trade
                             </button>
                         </div>
@@ -275,24 +356,53 @@
                 </div>
             </div>
 
-            <!-- SETTINGS VIEW (Replaced Profile) -->
-            <div id="settings-view" class="page-view">
+            <!-- PROFILE & SETTINGS VIEW (Replaced Settings) -->
+            <div id="profile-view" class="page-view">
                 <div class="space-y-6">
                     <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
-                        <h2 class="text-2xl font-bold text-blue-400 mb-6">Settings</h2>
+                        <h2 class="text-2xl font-bold text-blue-400 mb-6">Profile & Settings</h2>
                         
-                        <!-- Storage Info -->
+                        <!-- Profile Info -->
                         <div class="max-w-md mb-8">
-                            <h3 class="text-lg font-semibold text-white mb-2">Data Storage</h3>
+                            <h3 class="text-lg font-semibold text-white mb-2">Account</h3>
                             <p class="text-gray-400 text-sm">
-                                Your trade data is being saved locally in your browser's <b class="text-gray-200">LocalStorage</b>. It is not shared and will remain on this computer.
+                                <!-- CHANGED from Username to Mobile Number -->
+                                Logged in with: <span id="user-username-display" class="font-bold text-yellow-400"></span>
                             </p>
+                            <button id="sign-out-button" class="w-full mt-4 py-2 px-4 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg shadow-md transition duration-150">
+                                Sign Out
+                            </button>
+                        </div>
+
+                        <!-- Firebase Setup Info Box -->
+                        <div id="cloud-settings-info" class="p-4 bg-gray-700 border border-yellow-600 rounded-lg mb-8">
+                            <h4 class="font-bold text-yellow-400 mb-2">How to Set Up Cloud Storage</h4>
+                            <ol class="list-decimal list-inside text-gray-300 text-sm space-y-2">
+                                <li>Go to <a href="https://firebase.google.com/" target="_blank" class="text-blue-400 underline">Firebase</a> and create a new project.</li>
+                                <li>In your project, go to "Build" > "Authentication" > "Sign-in method" and enable **Email/Password**.</li>
+                                <li>
+                                    Go to "Build" > "Firestore Database" > "Create database".
+                                    It may ask you to <b class="text-red-400">Enable Billing</b> (this is a one-time verification, you won't be charged).
+                                    Then, **SECURE YOUR DATABASE** by going to the **"Rules"** tab and pasting in:
+                                    <pre class="bg-gray-900 p-2 rounded-md text-xs mt-2 overflow-x-auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /artifacts/{appId}/users/{userId}/commodity_trades/{tradeId} {
+      allow read, write, delete: if request.auth.uid == userId;
+    }
+  }
+}</pre>
+                                </li>
+                                <li>Go to your Project Settings (gear icon) > "General".</li>
+                                <li>Find the "SDK setup and configuration" section and copy the `firebaseConfig` object.</li>
+                                <li>Paste your config object into this file's script tag, replacing the `firebaseConfigPlaceholder`.</li>
+                            </ol>
                         </div>
 
                         <!-- Danger Zone for clearing data -->
                         <div class="max-w-md">
                             <h3 class="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
-                            <p class="text-gray-400 mb-4 text-sm">This action will permanently delete all trade data *from this browser*. This cannot be undone.</p>
+                            <p class="text-gray-400 mb-4 text-sm">This action will permanently delete all trade data *from your account*. This cannot be undone.</p>
                             <button id="clear-all-data-button" class="py-2 px-5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow-md transition duration-150">
                                 Clear All Data
                             </button>
@@ -305,9 +415,14 @@
 
         <!-- Footer/Info -->
         <div class="mt-8 text-xs text-center text-gray-500">
-            <!-- Simplified footer -->
-            <div id="app-footer">
-                Data is saved locally in your browser.
+            <!-- This footer is now for the main app -->
+            <div id="app-footer" class="hidden">
+                <!-- CHANGED from Username to Mobile Number -->
+                Logged in with: <span id="footer-user-username" class="font-mono text-yellow-400"></span>
+                <div id="auth-status" class="mt-2 text-gray-500">Authenticating...</div> 
+            </div>
+            <div id="auth-footer">
+                Please log in or sign up to continue.
             </div>
         </div>
 
@@ -372,7 +487,7 @@
         <div id="clear-data-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
             <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-red-700">
                 <h3 class="text-xl font-bold text-red-400 mb-4">Confirm Clear All Data</h3>
-                <p class="text-gray-300 mb-6">Are you sure you want to delete ALL trades? This action cannot be undone.</p>
+                <p class="text-gray-300 mb-6">Are you sure you want to delete ALL trades? This action cannot be undone.</Fp>
                 <div class="flex space-x-4">
                     <button type="button" id="clear-data-cancel-button" class="w-1/2 py-2 px-4 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition duration-150">
                         Cancel
@@ -386,11 +501,66 @@
 
     </div>
 
-    <!-- LocalStorage App Logic -->
+    <!-- Firebase SDK Imports -->
     <script type="module">
-        // --- Data cache & Storage Key ---
+        // Firebase imports: Added Email/Password Auth and SignOut
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut,
+            signInAnonymously, // Keep for placeholder
+            signInWithCustomToken // Keep for env
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            addDoc, 
+            onSnapshot, 
+            collection, 
+            query, 
+            serverTimestamp, 
+            setLogLevel, 
+            deleteDoc, 
+            updateDoc,
+            writeBatch, // Added for clear all data
+            getDocs // Added for clear all data
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Config Placeholder ---
+        // This is your actual config object
+        const hardcodedFirebaseConfig = {
+            apiKey: "AIzaSyAYy9FONBnwilc2f3WdTCGFQ2-W3jQvE3E",
+            authDomain: "parth-trading.firebaseapp.com",
+            projectId: "parth-trading",
+            storageBucket: "parth-trading.firebasestorage.app",
+            messagingSenderId: "629101446151",
+            appId: "1:629101446151:web:d91110064a8889497916a2",
+            measurementId: "G-7JQ523ETHN"
+        };
+        // ---
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromEnv = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Use environment config if available, otherwise use the hardcoded one
+        // FIX: Renamed the variable to avoid redeclaration
+        let firebaseConfig = (firebaseConfigFromEnv && Object.keys(firebaseConfigFromEnv).length > 0) 
+            ? firebaseConfigFromEnv 
+            : hardcodedFirebaseConfig; 
+
+        // Firebase App variables
+        let db;
+        let auth;
+        let userId = null;
+        let username = null; // CHANGED from userEmail
+
+        // Data cache
         let allTradesData = [];
-        const COMMODITY_TRADES_KEY = 'commodityTradesApp_allTrades';
+        let unsubscribeFromTrades = null; // To stop listener on sign-out
 
         // --- DOM Elements ---
         const modalEl = document.getElementById('custom-modal');
@@ -399,11 +569,15 @@
         const modalCloseEl = document.getElementById('modal-close');
         
         // Page Views & Containers
+        const mainAppContainerEl = document.getElementById('main-app-container');
+        const authContainerEl = document.getElementById('auth-container');
+        const loginViewEl = document.getElementById('login-view');
+        const registerViewEl = document.getElementById('register-view');
         const dashboardViewEl = document.getElementById('dashboard-view');
         const goldViewEl = document.getElementById('gold-view');
         const silverViewEl = document.getElementById('silver-view');
         const reportViewEl = document.getElementById('report-view');
-        const settingsViewEl = document.getElementById('settings-view'); // Renamed
+        const profileViewEl = document.getElementById('profile-view'); // Renamed
         const navLinks = document.querySelectorAll('.nav-link');
  
         // Gold Elements
@@ -466,13 +640,43 @@
         const clearDataCancelButtonEl = document.getElementById('clear-data-cancel-button');
         const clearDataConfirmButtonEl = document.getElementById('clear-data-confirm-button');
 
+        // Profile & Auth Elements
+        const loginFormEl = document.getElementById('login-form');
+        const registerFormEl = document.getElementById('register-form');
+        const loginErrorEl = document.getElementById('login-error');
+        const registerErrorEl = document.getElementById('register-error');
+        const gotoRegisterLinkEl = document.getElementById('goto-register-link');
+        const gotoLoginLinkEl = document.getElementById('goto-login-link');
+        const userUsernameDisplayEl = document.getElementById('user-username-display'); // CHANGED (now holds number)
+        const signOutButtonEl = document.getElementById('sign-out-button');
+        const authStatusEl = document.getElementById('auth-status');
+        const appFooterEl = document.getElementById('app-footer');
+        const authFooterEl = document.getElementById('auth-footer');
+        const footerUserUsernameEl = document.getElementById('footer-user-username'); // CHANGED (now holds number)
+
+        // NEW: Gemini Insights Elements
+        const insightsButton = document.getElementById('get-market-insights-button');
+        const insightsLoading = document.getElementById('insights-loading');
+        const insightsContent = document.getElementById('insights-content');
+        const insightsSources = document.getElementById('insights-sources');
+
+
         // --- Utility Functions ---
         
+        // This is the (hidden) domain we'll add to usernames to make them "emails"
+        const FAKE_DOMAIN = "@trade-tracker.app";
+        // FIX: Add a prefix to make the email valid for sign-in
+        const PHONE_PREFIX = "phone-";
+
         /**
          * Refreshes all UI components (tables, dashboard) from 'allTradesData'.
          */
         const updateAllUI = () => {
-            allTradesData.sort((a, b) => a.timestamp - b.timestamp); // Sort by timestamp (which is just a number now)
+            allTradesData.sort((a, b) => {
+                const dateA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                const dateB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                return dateA - dateB;
+            });
             
             updateDashboardAndReport(allTradesData); 
             renderHistoryTable('gold', goldTradesBodyEl, goldLoadingMessageEl);
@@ -481,7 +685,7 @@
 
         const formatDate = (timestamp) => {
             if (!timestamp) return 'N/A';
-            const date = new Date(timestamp); // LocalStorage stores numbers
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
             return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/');
         };
 
@@ -509,7 +713,7 @@
             if (!dateInput) {
                 d = new Date();
             } else {
-                d = new Date(dateInput); // LocalStorage stores numbers
+                d = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
             }
             d.setHours(0, 0, 0, 0);
             let day = d.getDay(); 
@@ -517,6 +721,95 @@
             d.setDate(d.getDate() - daysToSubtract);
             return toStorageDate(d);
         };
+
+        // --- NEW: Gemini API Functions ---
+
+        // Function to handle exponential backoff
+        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        /**
+         * Calls the Gemini API with exponential backoff.
+         * @param {string} prompt The user prompt to send.
+         * @param {boolean} useGrounding Whether to enable Google Search grounding.
+         */
+        async function callGeminiApi(prompt, useGrounding = false) {
+            // FIX: Add your Gemini API Key here.
+            const apiKey = "YOUR_GEMINI_API_KEY"; // Will be populated by the environment
+            // FIX: Corrected the model name.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-preview-0514:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+            };
+
+            if (useGrounding) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            let response;
+            let retries = 5;
+            let delay = 1000; // 1 second
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const candidate = result.candidates?.[0];
+
+                        if (candidate && candidate.content?.parts?.[0]?.text) {
+                            const text = candidate.content.parts[0].text;
+                            let sources = [];
+                            const groundingMetadata = candidate.groundingMetadata;
+
+                            if (useGrounding && groundingMetadata && groundingMetadata.groundingAttributions) {
+                                sources = groundingMetadata.groundingAttributions
+                                    .map(attribution => ({
+                                        uri: attribution.web?.uri,
+                                        title: attribution.web?.title,
+                                    }))
+                                    .filter(source => source.uri && source.title); // Ensure sources are valid
+                            }
+                            // Success: return text and sources
+                            return { text, sources };
+                        } else {
+                            // This case is if the API call succeeded but returned no text
+                            throw new Error("API returned no content.");
+                        }
+                    } else if (response.status === 429 || response.status >= 500) {
+                        // Throttling or server error, wait and retry
+                        if (i === retries - 1) {
+                            throw new Error(`API request failed after ${retries} attempts with status: ${response.status}`);
+                        }
+                        // Do not log retry attempts to the console as errors
+                        await sleep(delay);
+                        delay *= 2; // Exponential backoff
+                    } else {
+                        // Other client-side error (e.g., 400 Bad Request)
+                        const errorResult = await response.json();
+                        console.error("API request failed with client error:", errorResult);
+                        throw new Error(`API request failed: ${errorResult.error?.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    // Network error or fetch failure
+                    console.error("Fetch error:", error);
+                    if (i === retries - 1) {
+                        throw error; // Re-throw last error
+                    }
+                    // Do not log retry attempts to the console as errors
+                    await sleep(delay);
+                    delay *= 2;
+                }
+            }
+            // This should not be reachable, but as a fallback:
+            throw new Error("Failed to get response from API after all retries.");
+        }
+
 
         // --- UI Rendering Functions ---
 
@@ -545,8 +838,7 @@
                 openDeleteModal(tradeId);
             } else if (target.classList.contains('edit-trade-btn')) {
                 const { id, commodity, buy, sell } = target.dataset;
-                // Note: dataset values are strings, convert ID to number
-                openEditModal({ id: Number(id), commodity, buy, sell });
+                openEditModal({ id, commodity, buy, sell });
             }
         };
 
@@ -571,7 +863,7 @@
                 const row = tableBodyEl.insertRow();
                 row.className = 'hover:bg-gray-700 transition duration-150';
                 row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm font-medium ${commodity === 'gold' ? 'text-yellow-400' : 'text-gray-300'}">${weekToDisplay}</div>`;
-                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm text-gray-300">${trade.date}</div>`;
+                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm text-gray-300">${trade.date || formatDate(trade.timestamp)}</div>`;
                 const buyAmount = trade.buyAmount || 0;
                 row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm font-semibold ${buyAmount > 0 ? 'text-green-400' : 'text-gray-500'}">${parseFloat(buyAmount).toFixed(2)}</div>`;
                 const sellAmount = trade.sellAmount || 0;
@@ -714,14 +1006,14 @@
             }
         };
  
-        // Shows pages within the main app
+        // This shows pages *within* the main app
         const showAppView = (hash) => {
             const viewMap = {
                 '#dashboard': dashboardViewEl,
                 '#gold': goldViewEl,
                 '#silver': silverViewEl,
                 '#report': reportViewEl,
-                '#settings': settingsViewEl // Changed from #profile
+                '#profile': profileViewEl
             };
 
             Object.values(viewMap).forEach(el => el.style.display = 'none');
@@ -739,97 +1031,161 @@
                     if (hash === '#gold') activeLink.classList.add('bg-yellow-600', 'text-gray-900', 'hover:bg-yellow-500');
                     else if (hash === '#silver') activeLink.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
                     else if (hash === '#report') activeLink.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
-                    else if (hash === '#settings') activeLink.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500'); // Changed from #profile
-                    else activeLink.classList.add('bg-yellow-600', 'text-gray-900', 'hover:bg-yellow-500'); // Dashboard
+                    else if (hash === '#profile') activeLink.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
+                    else activeLink.classList.add('bg-yellow-600', 'text-gray-900', 'hover:bg-yellow-500');
                 }
             } else {
-                window.location.hash = '#dashboard'; // Default to dashboard
+                window.location.hash = '#dashboard'; // Default to dashboard if logged in
+            }
+        };
+
+        // This shows the Login or Register pages
+        const showAuthView = (hash) => {
+            if (hash === '#register') {
+                loginViewEl.style.display = 'none';
+                registerViewEl.style.display = 'block';
+            } else {
+                loginViewEl.style.display = 'block';
+                registerViewEl.style.display = 'none';
             }
         };
 
         const handleHashChange = () => {
-            let hash = window.location.hash || '#dashboard'; // Default to dashboard
+            let hash = window.location.hash || '#login';
             
-            if (hash.startsWith('#report')) {
-                showAppView('#report'); 
-                showReportSubView(hash);
-            } else {
-                showAppView(hash); // Show app page
+            if (auth && auth.currentUser) { // User is LOGGED IN
+                if (hash === '#login' || hash === '#register') {
+                    window.location.hash = '#dashboard'; // Redirect to app
+                    return;
+                }
+                if (hash.startsWith('#report')) {
+                    showAppView('#report'); 
+                    showReportSubView(hash);
+                } else {
+                    showAppView(hash); // Show app page
+                }
+            } else { // User is LOGGED OUT
+                if (hash === '#login' || hash === '#register') {
+                    showAuthView(hash); // Show auth page
+                } else {
+                    window.location.hash = '#login'; // Redirect to login
+                }
             }
         };
  
         window.addEventListener('hashchange', handleHashChange);
         
-        // --- LocalStorage Service ---
+        // --- Firebase Service (No longer needs to be an object) ---
 
-        const loadTradesFromStorage = () => {
-            try {
-                const tradesJSON = localStorage.getItem(COMMODITY_TRADES_KEY);
-                allTradesData = tradesJSON ? JSON.parse(tradesJSON) : [];
-            } catch (e) {
-                console.error("Failed to load trades from localStorage:", e);
-                allTradesData = [];
-                showModal("Load Error", "Could not load saved data. It may be corrupted.");
+        const getTradesCollectionPath = () => {
+            if (!userId) {
+                console.error("User ID is not available.");
+                return null;
             }
-            updateAllUI();
+            return `artifacts/${appId}/users/${userId}/commodity_trades`;
         };
 
-        const saveTradesToStorage = () => {
-            try {
-                localStorage.setItem(COMMODITY_TRADES_KEY, JSON.stringify(allTradesData));
-            } catch (e) {
-                console.error("Failed to save trades to localStorage:", e);
-                showModal("Save Error", "Could not save trade data. Storage may be full.");
-            }
-        };
-
-        const saveTrade = (tradeData, commodity) => {
-            const newTrade = {
-                ...tradeData,
-                id: Date.now(), // Use timestamp as a simple unique ID
-                commodity: commodity,
-                timestamp: Date.now(),
-                date: toStorageDate(new Date()),
-            };
-            allTradesData.push(newTrade);
-            saveTradesToStorage();
-            updateAllUI(); // Update UI after saving
-            
-            // Reset form and go to dashboard
-            if(commodity === 'gold') goldTradeFormEl.reset();
-            else silverTradeFormEl.reset();
-            window.location.hash = '#dashboard';
-        };
-
-        const deleteTrade = (tradeId) => {
-            // tradeId from dataset is a string, convert to number for matching
-            allTradesData = allTradesData.filter(trade => trade.id !== Number(tradeId));
-            saveTradesToStorage();
-            updateAllUI();
-            
-            deleteModalEl.classList.add('hidden');
-            deleteModalEl.classList.remove('flex');
-        };
-
-        const updateTrade = (tradeId, newData) => {
-            // tradeId from dataset is a string, convert to number for matching
-            allTradesData = allTradesData.map(trade => {
-                if (trade.id === Number(tradeId)) {
-                    return { ...trade, ...newData }; // Merge new data (buy/sell amounts)
-                }
-                return trade;
+        const listenForTrades = () => {
+            if (unsubscribeFromTrades) unsubscribeFromTrades(); // Stop old listener
+            const path = getTradesCollectionPath();
+            if (!path) return;
+            const q = query(collection(db, path));
+            unsubscribeFromTrades = onSnapshot(q, (querySnapshot) => {
+                const trades = [];
+                querySnapshot.forEach((doc) => {
+                    trades.push({ id: doc.id, ...doc.data() });
+                });
+                allTradesData = trades;
+                updateAllUI();
+            }, (error) => {
+                console.error("Error listening to trades:", error);
+                showModal("Real-time Error", "Failed to load real-time trade data.");
             });
-            saveTradesToStorage();
-            updateAllUI();
-
-            editModalEl.classList.add('hidden');
-            editModalEl.classList.remove('flex');
         };
 
-        const clearAllData = () => {
-            allTradesData = [];
-            saveTradesToStorage();
-            updateAllUI();
+        const saveTrade = async (tradeData, commodity) => {
+            if (!db || !userId) {
+                showModal("Error", "Database not ready or user not authenticated.");
+                return;
+            }
+            const path = getTradesCollectionPath();
+            if (!path) return;
+            try {
+                await addDoc(collection(db, path), {
+                    ...tradeData,
+                    commodity: commodity,
+                    timestamp: serverTimestamp(), 
+                    date: toStorageDate(new Date()), 
+                });
+                if(commodity === 'gold') goldTradeFormEl.reset();
+                else silverTradeFormEl.reset();
+                window.location.hash = '#dashboard';
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showModal("Save Error", "Failed to save the trade entry.");
+            }
+        };
+
+        const deleteTrade = async (tradeId) => {
+            if (!db || !userId || !tradeId) {
+                showModal("Error", "Database not ready or trade ID missing.");
+                return;
+            }
+            const tradeDocRef = doc(db, getTradesCollectionPath(), tradeId);
+            try {
+                await deleteDoc(tradeDocRef);
+                deleteModalEl.classList.add('hidden');
+                deleteModalEl.classList.remove('flex');
+            } catch (error) {
+                console.error("Error deleting trade: ", error);
+                showModal("Delete Error", "Could not delete the trade.");
+            }
+        };
+
+        const updateTrade = async (tradeId, newData) => {
+            if (!db || !userId) {
+                showModal("Error", "Database not ready.");
+                return;
+            }
+            const tradeDocRef = doc(db, getTradesCollectionPath(), tradeId);
+            try {
+                await updateDoc(tradeDocRef, newData);
+                editModalEl.classList.add('hidden');
+                editModalEl.classList.remove('flex');
+            } catch (error) {
+                console.error("Error updating trade: ", error);
+                editErrorMessageEl.textContent = "Could not save changes.";
+                editErrorMessageEl.classList.remove('hidden');
+            }
+        };
+
+        const clearAllData = async () => {
+            if (!db || !userId) {
+                showModal("Error", "Database not ready.");
+                return;
+            }
+            // We must delete all docs in the collection.
+            // This is safer than deleting the collection itself.
+            // Get all docs, then batch delete.
+            try {
+                const path = getTradesCollectionPath();
+                const q = query(collection(db, path));
+                const querySnapshot = await getDocs(q); // Use getDocs for one-time read
+                
+                const batch = writeBatch(db);
+                querySnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                // onSnapshot will automatically update the UI to be empty
+                allTradesData = []; // Manually clear cache just in case
+                updateAllUI();
+                
+            } catch (error) {
+                 console.error("Error clearing all data: ", error);
+                showModal("Error", "Could not clear all data. See console.");
+            }
         };
         
 
@@ -913,7 +1269,7 @@
         });
         if(clearDataConfirmButtonEl) clearDataConfirmButtonEl.addEventListener('click', () => {
             try {
-                clearAllData(); // Use new localStorage function
+                clearAllData(); // Use new cloud function
                 clearDataModalEl.classList.add('hidden');
                 clearDataModalEl.classList.remove('flex');
                 showModal("Success", "All trade data has been cleared.");
@@ -926,10 +1282,199 @@
         if(goldTradesBodyEl) goldTradesBodyEl.addEventListener('click', handleTableAction);
         if(silverTradesBodyEl) silverTradesBodyEl.addEventListener('click', handleTableAction);
 
+        // --- NEW AUTH LISTENERS ---
+
+        if(loginFormEl) loginFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginErrorEl.classList.add('hidden');
+            const username = document.getElementById('login-username').value; // This is the mobile number
+            const password = document.getElementById('login-password').value;
+            try {
+                // FIX: Add prefix to make the email valid
+                const loginEmail = PHONE_PREFIX + username + FAKE_DOMAIN;
+                await signInWithEmailAndPassword(auth, loginEmail, password); 
+                // onAuthStateChanged will handle the UI update
+            } catch (error) {
+                console.error("Login failed:", error);
+                // Handle common errors
+                if (error.code === 'auth/operation-not-allowed') {
+                    loginErrorEl.textContent = "Email/Password login is not enabled for this project.";
+                    showModal("Configuration Error", "Login failed because the 'Email/Password' sign-in method is not enabled in your Firebase project. Please enable it in the Firebase Console -> Authentication -> Sign-in method.");
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    loginErrorEl.textContent = "Invalid mobile number or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    // FIX: Add specific error for this
+                    loginErrorEl.textContent = "An internal error occurred. Please try again.";
+                    console.error("Login email format was invalid:", PHONE_PREFIX + username + FAKE_DOMAIN);
+                } else {
+                    loginErrorEl.textContent = "An unknown error occurred. Please try again.";
+                }
+                loginErrorEl.classList.remove('hidden');
+            }
+        });
+
+        if(registerFormEl) registerFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            registerErrorEl.classList.add('hidden');
+            const username = document.getElementById('register-username').value; // This is the mobile number
+            const password = document.getElementById('register-password').value;
+
+            // UPDATED Validation for 10-digit number
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(username)) {
+                registerErrorEl.textContent = "Please enter a valid 10-digit mobile number.";
+                registerErrorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // FIX: Add prefix to make the email valid
+                const registerEmail = PHONE_PREFIX + username + FAKE_DOMAIN;
+                await createUserWithEmailAndPassword(auth, registerEmail, password); 
+                // onAuthStateChanged will handle the UI update
+            } catch (error) {
+                console.error("Registration failed:", error);
+                // Handle common errors
+                if (error.code === 'auth/operation-not-allowed') {
+                    registerErrorEl.textContent = "Email/Password sign-up is not enabled for this project.";
+                     showModal("Configuration Error", "Registration failed because the 'Email/Password' sign-in method is not enabled in your Firebase project. Please enable it in the Firebase Console -> Authentication -> Sign-in method.");
+                } else if (error.code === 'auth/email-already-in-use') {
+                    registerErrorEl.textContent = "This mobile number is already taken. Please choose another.";
+                } else if (error.code === 'auth/weak-password') {
+                     registerErrorEl.textContent = "Password is too weak. Must be at least 6 characters.";
+                } else {
+                    registerErrorEl.textContent = "An unknown error occurred. Please try again.";
+                }
+                registerErrorEl.classList.remove('hidden');
+            }
+        });
+
+        if(signOutButtonEl) signOutButtonEl.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged will handle the UI update
+            } catch (error) {
+                console.error("Sign out failed:", error);
+                showModal("Error", "Could not sign out.");
+            }
+        });
+
+        // Auth view toggle links
+        if(gotoRegisterLinkEl) gotoRegisterLinkEl.addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#register'; });
+        if(gotoLoginLinkEl) gotoLoginLinkEl.addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#login'; });
+
+
+        // NEW: Gemini Insights Button Listener
+        if(insightsButton) {
+            insightsButton.addEventListener('click', async () => {
+                if(insightsLoading) insightsLoading.style.display = 'flex';
+                if(insightsContent) insightsContent.innerHTML = '';
+                if(insightsSources) insightsSources.innerHTML = '';
+                insightsButton.disabled = true;
+
+                const prompt = "Provide a very brief, one-paragraph summary of the latest market news and price trends for Gold and Silver commodities.";
+
+                try {
+                    const { text, sources } = await callGeminiApi(prompt, true); // Enable grounding
+                    
+                    if(insightsContent) {
+                        // Replace newlines with <br> tags for proper HTML rendering
+                        insightsContent.innerHTML = text.replace(/\n/g, '<br>');
+                    }
+
+                    if (insightsSources && sources.length > 0) {
+                        let sourcesHtml = '<h4 class="text-sm font-semibold text-gray-300 mt-4 mb-2">Sources:</h4><ul class="list-disc list-inside space-y-1">';
+                        sources.forEach(source => {
+                            // Truncate long titles for better UI
+                            const title = source.title.length > 80 ? source.title.substring(0, 80) + '...' : source.title;
+                            sourcesHtml += `<li><a href="${source.uri}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline" title="${source.title}">${title}</a></li>`;
+                        });
+                        sourcesHtml += '</ul>';
+                        insightsSources.innerHTML = sourcesHtml;
+                    }
+
+                } catch (error) {
+                    console.error("Failed to get market insights:", error);
+                    if(insightsContent) insightsContent.innerHTML = `<p class="text-red-400">Could not load insights. ${error.message}</p>`;
+                } finally {
+                    if(insightsLoading) insightsLoading.style.display = 'none';
+                    insightsButton.disabled = false;
+                }
+            });
+        }
+
+
         // --- Initial Page Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadTradesFromStorage();
-            handleHashChange();
+            try {
+                // Check if the placeholder is still being used
+                if (hardcodedFirebaseConfig.apiKey === "YOUR_API_KEY" && !initialAuthToken) {
+                    showModal("Configuration Error", "You have not configured your Firebase project. Please follow the instructions on the 'Profile' page (once logged in) or in the code comments to set up your firebaseConfig.");
+                    // We can't proceed, but we can set up the auth UI
+                    mainAppContainerEl.classList.add('hidden');
+                    authContainerEl.style.display = 'block';
+                    handleHashChange(); // Show login page
+                    return; // Stop initialization
+                }
+
+                setLogLevel('debug');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                if(authStatusEl) authStatusEl.textContent = 'Initializing...';
+                
+                // This is the new "main" function
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // USER IS LOGGED IN
+                        userId = user.uid;
+                        // FIX: Extract mobile number correctly using the prefix
+                        username = user.email.replace(PHONE_PREFIX, "").split('@')[0];
+                        
+                        // Update UI
+                        mainAppContainerEl.classList.remove('hidden');
+                        authContainerEl.style.display = 'none'; // Use style.display to remove from flow
+                        authFooterEl.classList.add('hidden');
+                        appFooterEl.classList.remove('hidden');
+                        if(userUsernameDisplayEl) userUsernameDisplayEl.textContent = username; // CHANGED (now shows number)
+                        if(footerUserUsernameEl) footerUserUsernameEl.textContent = username; // CHANGED (now shows number)
+                        if(authStatusEl) authStatusEl.textContent = 'Authenticated successfully.';
+                        if(goldSubmitButton) goldSubmitButton.disabled = false;
+                        if(silverSubmitButton) silverSubmitButton.disabled = false;
+
+                        // Start data listeners
+                        listenForTrades(); 
+                        
+                    } else {
+                        // USER IS LOGGED OUT
+                        userId = null;
+                        username = null; // CHANGED (clears number)
+                        if (unsubscribeFromTrades) unsubscribeFromTrades(); // Stop listening
+                        allTradesData = []; // Clear data cache
+                        updateAllUI(); // Clear UI
+                        
+                        // Update UI
+                        mainAppContainerEl.classList.add('hidden');
+                        authContainerEl.style.display = 'block';
+                        authFooterEl.classList.remove('hidden');
+                        appFooterEl.classList.add('hidden');
+                        if(goldSubmitButton) goldSubmitButton.disabled = true;
+                        if(silverSubmitButton) silverSubmitButton.disabled = true;
+                    }
+                    
+                    // Always run the router to show the correct page
+                    handleHashChange();
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                if(authStatusEl) authStatusEl.textContent = 'Error initializing Firebase.';
+                showModal("Firebase Error", "Could not initialize Firebase. Please check your config.");
+                // Show auth view even if Firebase fails, so user isn't stuck
+                mainAppContainerEl.classList.add('hidden');
+                authContainerEl.style.display = 'block';
+                handleHashChange();
+            }
         });
         
     </script>
