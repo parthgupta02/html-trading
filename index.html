@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commodity Trade Tracker</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom vertical scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px; /* Added height for horizontal */
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Custom horizontal scrollbar for nav */
+        nav::-webkit-scrollbar {
+            height: 4px; /* Slimmer scrollbar for nav */
+        }
+        nav::-webkit-scrollbar-track {
+            background: transparent; /* Make nav scrollbar track invisible */
+        }
+        nav::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+
+        /* Style for hidden views */
+        .page-view, .report-page-view {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+
+    <div id="app" class="max-w-6xl mx-auto pt-4">
+
+        <!-- 
+          Navigation Bar:
+          - Added 'Report'
+        -->
+        <nav class="mb-6 p-2 bg-gray-800 rounded-xl shadow-lg flex justify-start flex-nowrap overflow-x-auto space-x-2 sm:space-x-4 border border-gray-700"> 
+            <a href="#dashboard" id="nav-dashboard" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                Dashboard
+            </a>
+            <a href="#gold" id="nav-gold" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                Gold Mini
+            </a>
+            <a href="#silver" id="nav-silver" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                Silver Mini
+            </a>
+            <a href="#report" id="nav-report" class="nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                Report
+            </a>
+        </nav>
+        
+        <!-- Auth status was here, now moved to footer -->
+
+        <!-- DASHBOARD VIEW (Home Page) -->
+        <div id="dashboard-view" class="page-view">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- New Gold Card -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-xl font-bold text-yellow-400 mb-4">Gold Mini - Current Week</h2>
+                    <div class="flex justify-around items-center space-x-4">
+                        <!-- Avg Buy -->
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-green-400 uppercase">Avg. Buy</p>
+                            <p id="gold-avg-buy" class="text-3xl sm:text-4xl font-extrabold text-green-400 mt-1">0.00</p>
+                        </div>
+                        <!-- Avg Sell -->
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-red-400 uppercase">Avg. Sell</p>
+                            <p id="gold-avg-sell" class="text-3xl sm:text-4xl font-extrabold text-red-400 mt-1">0.00</p>
+                        </div>
+                    </div>
+                    <p id="gold-trade-count" class="text-sm text-gray-400 mt-4 text-center">Based on 0 trades this week.</p>
+                </div>
+
+                <!-- New Silver Card -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-300 mb-4">Silver Mini - Current Week</h2>
+                    <div class="flex justify-around items-center space-x-4">
+                        <!-- Avg Buy -->
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-green-400 uppercase">Avg. Buy</p>
+                            <p id="silver-avg-buy" class="text-3xl sm:text-4xl font-extrabold text-green-400 mt-1">0.00</p>
+                        </div>
+                        <!-- Avg Sell -->
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-red-400 uppercase">Avg. Sell</p>
+                            <p id="silver-avg-sell" class="text-3xl sm:text-4xl font-extrabold text-red-400 mt-1">0.00</p>
+                        </div>
+                    </div>
+                    <p id="silver-trade-count" class="text-sm text-gray-400 mt-4 text-center">Based on 0 trades this week.</p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- GOLD MINI TRADE ENTRY VIEW -->
+        <div id="gold-view" class="page-view">
+            <!-- New Gold Trade Entry Form -->
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-2xl mb-8 border border-yellow-700">
+                <h2 class="text-2xl font-semibold mb-4 text-yellow-400">New Gold Mini Trade</h2>
+                <form id="gold-trade-form" class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
+                    <div class="col-span-1">
+                        <label for="gold-buy-amount" class="block text-sm font-medium text-green-400 mb-1">Buy Amount</label>
+                        <!-- Removed 'required' -->
+                        <input type="number" id="gold-buy-amount" placeholder="Enter buy amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-green-500 focus:border-green-500 transition duration-150">
+                    </div>
+                    <div class="col-span-1">
+                        <label for="gold-sell-amount" class="block text-sm font-medium text-red-400 mb-1">Sell Amount</label>
+                        <!-- Removed 'required' -->
+                        <input type="number" id="gold-sell-amount" placeholder="Enter sell amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-red-500 focus:border-red-500 transition duration-150">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 flex items-end">
+                        <button type="submit" id="gold-submit-button" disabled
+                                class="w-full py-2 px-4 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Add Gold Trade
+                        </button>
+                    </div>
+                </form>
+                <p id="gold-error-message" class="text-red-400 text-sm mt-3 hidden"></p>
+            </div>
+            <!-- Gold Trades Table -->
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-2xl border border-gray-700">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Gold Trade History</h2>
+                <div class="overflow-x-auto rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Week</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-green-400 uppercase tracking-wider">Buy Amount</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-red-400 uppercase tracking-wider">Sell Amount</th>
+                                <!-- Changed from User ID -->
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gold-trades-body" class="bg-gray-800 divide-y divide-gray-700">
+                            <tr><td colspan="5" class="px-3 py-4 text-center text-sm text-gray-400" id="gold-loading-message">Loading trades...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SILVER MINI TRADE ENTRY VIEW -->
+        <div id="silver-view" class="page-view">
+            <!-- New Silver Trade Entry Form -->
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-2xl mb-8 border border-gray-600">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-300">New Silver Mini Trade</h2>
+                <form id="silver-trade-form" class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
+                    <div class="col-span-1">
+                        <label for="silver-buy-amount" class="block text-sm font-medium text-green-400 mb-1">Buy Amount</label>
+                        <!-- Removed 'required' -->
+                        <input type="number" id="silver-buy-amount" placeholder="Enter buy amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-green-500 focus:border-green-500 transition duration-150">
+                    </div>
+                    <div class="col-span-1">
+                        <label for="silver-sell-amount" class="block text-sm font-medium text-red-400 mb-1">Sell Amount</label>
+                        <!-- Removed 'required' -->
+                        <input type="number" id="silver-sell-amount" placeholder="Enter sell amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-red-500 focus:border-red-500 transition duration-150">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 flex items-end">
+                        <button type="submit" id="silver-submit-button" disabled
+                                class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Add Silver Trade
+                        </button>
+                    </div>
+                </form>
+                <p id="silver-error-message" class="text-red-400 text-sm mt-3 hidden"></p>
+            </div>
+            <!-- Silver Trades Table -->
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-2xl border border-gray-700">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Silver Trade History</h2>
+                <div class="overflow-x-auto rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Week</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-green-400 uppercase tracking-wider">Buy Amount</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-red-400 uppercase tracking-wider">Sell Amount</th>
+                                <!-- Changed from User ID -->
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="silver-trades-body" class="bg-gray-800 divide-y divide-gray-700">
+                            <tr><td colspan="5" class="px-3 py-4 text-center text-sm text-gray-400" id="silver-loading-message">Loading trades...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NEW REPORT VIEW -->
+        <div id="report-view" class="page-view">
+            
+            <!-- New Report Sub-Navigation -->
+            <nav id="report-sub-nav" class="mb-4 p-2 bg-gray-800 rounded-xl shadow-lg flex justify-start flex-nowrap overflow-x-auto space-x-2 sm:space-x-4 border border-gray-700">
+                <a href="#report-overall" class="report-nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                    Overall Report
+                </a>
+                <a href="#report-gold" class="report-nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                    Gold Report
+                </a>
+                <a href="#report-silver" class="report-nav-link py-2 px-4 rounded-lg font-semibold text-gray-300 hover:bg-gray-700 transition duration-150 whitespace-nowrap">
+                    Silver Report
+                </a>
+            </nav>
+
+            <!-- Report Page Content -->
+
+            <!-- 1. Overall Report View (The scroller) -->
+            <div id="report-overall-view" class="report-page-view">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-2xl font-bold text-green-400 mb-6">Overall Summary</h2>
+                    <!-- Scroller Container for Report Cards -->
+                    <div class="flex flex-nowrap overflow-x-auto space-x-6 pb-4">
+                        
+                        <!-- Gold Report -->
+                        <div class="bg-gray-700 p-6 rounded-lg min-w-96">
+                            <h3 class="text-lg font-semibold text-yellow-400 mb-3">Gold Mini Net Position</h3>
+                            <p id="gold-report-summary" class="text-sm text-gray-300 mb-4">Calculating...</p>
+                            <div class="text-4xl font-extrabold" id="gold-net-position">0.00</div>
+                        </div>
+                        
+                        <!-- Silver Report -->
+                        <div class="bg-gray-700 p-6 rounded-lg min-w-96">
+                            <h3 class="text-lg font-semibold text-gray-300 mb-3">Silver Mini Net Position</h3>
+                            <p id="silver-report-summary" class="text-sm text-gray-300 mb-4">Calculating...</p>
+                            <div class="text-4xl font-extrabold" id="silver-net-position">0.00</div>
+                        </div>
+
+                        <!-- Combined Report -->
+                        <div class="bg-gray-700 p-6 rounded-lg min-w-96">
+                            <h3 class="text-lg font-semibold text-white mb-3">Combined Net Position</h3>
+                            <p id="combined-report-summary" class="text-sm text-gray-300 mb-4">Calculating...</p>
+                            <div class="text-4xl font-extrabold" id="combined-net-position">0.00</div>
+                        </div>
+                    
+                    </div> <!-- End Scroller -->
+                </div>
+            </div>
+
+            <!-- 2. Gold-Only Report View -->
+            <div id="report-gold-view" class="report-page-view">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-2xl font-bold text-yellow-400 mb-6">Gold Mini Report</h2>
+                    <!-- Gold Card (full width) -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Gold Mini Net Position</h3>
+                        <!-- Need new IDs so JS can update both -->
+                        <p id="gold-report-summary-solo" class="text-sm text-gray-300 mb-4">Calculating...</p>
+                        <div class="text-4xl font-extrabold" id="gold-net-position-solo">0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Silver-Only Report View -->
+            <div id="report-silver-view" class="report-page-view">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-300 mb-6">Silver Mini Report</h2>
+                    <!-- Silver Card (full width) -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-3">Silver Mini Net Position</h3>
+                        <!-- Need new IDs so JS can update both -->
+                        <p id="silver-report-summary-solo" class="text-sm text-gray-300 mb-4">Calculating...</p>
+                        <div class="text-4xl font-extrabold" id="silver-net-position-solo">0.00</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer/Info -->
+        <div class="mt-8 text-xs text-center text-gray-500">
+            Trades are stored securely under User ID: <span id="display-user-id" class="font-mono text-yellow-400">N/A</span>
+            <!-- Moved this element here -->
+            <div id="auth-status" class="mt-2 text-gray-500">Authenticating...</div> 
+        </div>
+
+        <!-- Modal for Custom Alert/Error -->
+        <div id="custom-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-gray-700">
+                <h3 id="modal-title" class="text-xl font-bold text-white mb-4"></h3>
+                <p id="modal-content" class="text-gray-300 mb-6"></p>
+                <button id="modal-close" class="w-full py-2 px-4 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg transition duration-150">
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <!-- NEW: Modal for Editing Trades -->
+        <div id="edit-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-gray-700">
+                <form id="edit-trade-form">
+                    <h3 id="edit-modal-title" class="text-xl font-bold text-white mb-4">Edit Trade</h3>
+                    
+                    <!-- Hidden input to store the trade ID -->
+                    <input type="hidden" id="edit-trade-id">
+                    
+                    <div class="mb-4">
+                        <label for="edit-buy-amount" class="block text-sm font-medium text-green-400 mb-1">Buy Amount</label>
+                        <input type="number" id="edit-buy-amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-green-500 focus:border-green-500 transition duration-150">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="edit-sell-amount" class="block text-sm font-medium text-red-400 mb-1">Sell Amount</label>
+                        <input type="number" id="edit-sell-amount" step="any" min="0"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-red-500 focus:border-red-500 transition duration-150">
+                    </div>
+                    
+                    <p id="edit-error-message" class="text-red-400 text-sm mb-4 hidden"></p>
+
+                    <div class="flex space-x-4">
+                        <button type="button" id="edit-cancel-button" class="w-1/2 py-2 px-4 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition duration-150">
+                            Cancel
+                        </button>
+                        <button type="submit" id="edit-save-button" class="w-1/2 py-2 px-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition duration-150">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- NEW: Modal for Delete Confirmation -->
+        <div id="delete-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-red-700">
+                <h3 id="delete-modal-title" class="text-xl font-bold text-red-400 mb-4">Confirm Deletion</h3>
+                <p id="delete-modal-content" class="text-gray-300 mb-6">Are you sure you want to delete this trade? This action cannot be undone.</p>
+                
+                <!-- Hidden input to store the trade ID for deletion -->
+                <input type="hidden" id="delete-trade-id">
+                
+                <div class="flex space-x-4">
+                    <button type="button" id="delete-cancel-button" class="w-1/2 py-2 px-4 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition duration-150">
+                        Cancel
+                    </button>
+                    <button type="button" id="delete-confirm-button" class="w-1/2 py-2 px-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition duration-150">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Added deleteDoc and updateDoc
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, serverTimestamp, setLogLevel, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+        let allTradesData = []; // Cache for all calculations
+
+        // --- DOM Elements ---
+        const authStatusEl = document.getElementById('auth-status');
+        const displayUserIdEl = document.getElementById('display-user-id');
+        const modalEl = document.getElementById('custom-modal');
+        const modalTitleEl = document.getElementById('modal-title');
+        const modalContentEl = document.getElementById('modal-content');
+        const modalCloseEl = document.getElementById('modal-close');
+        
+        // Page Views
+        const dashboardViewEl = document.getElementById('dashboard-view');
+        const goldViewEl = document.getElementById('gold-view');
+        const silverViewEl = document.getElementById('silver-view');
+        const reportViewEl = document.getElementById('report-view');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Gold Elements
+        const goldTradeFormEl = document.getElementById('gold-trade-form');
+        const goldSubmitButton = document.getElementById('gold-submit-button');
+        const goldErrorMessageEl = document.getElementById('gold-error-message');
+        const goldLoadingMessageEl = document.getElementById('gold-loading-message');
+        const goldTradesBodyEl = document.getElementById('gold-trades-body');
+        
+        // Silver Elements
+        const silverTradeFormEl = document.getElementById('silver-trade-form');
+        const silverSubmitButton = document.getElementById('silver-submit-button');
+        const silverErrorMessageEl = document.getElementById('silver-error-message');
+        const silverLoadingMessageEl = document.getElementById('silver-loading-message');
+        const silverTradesBodyEl = document.getElementById('silver-trades-body');
+
+        // New Dashboard Elements
+        const goldAvgBuyEl = document.getElementById('gold-avg-buy');
+        const goldAvgSellEl = document.getElementById('gold-avg-sell');
+        const goldTradeCountEl = document.getElementById('gold-trade-count');
+        const silverAvgBuyEl = document.getElementById('silver-avg-buy');
+        const silverAvgSellEl = document.getElementById('silver-avg-sell');
+        const silverTradeCountEl = document.getElementById('silver-trade-count');
+
+        // Report Elements
+        const goldReportSummaryEl = document.getElementById('gold-report-summary');
+        const goldNetPositionEl = document.getElementById('gold-net-position');
+        const silverReportSummaryEl = document.getElementById('silver-report-summary');
+        const silverNetPositionEl = document.getElementById('silver-net-position');
+        const combinedReportSummaryEl = document.getElementById('combined-report-summary');
+        const combinedNetPositionEl = document.getElementById('combined-net-position');
+
+        // New Report Solo Elements
+        const goldReportSummarySoloEl = document.getElementById('gold-report-summary-solo');
+        const goldNetPositionSoloEl = document.getElementById('gold-net-position-solo');
+        const silverReportSummarySoloEl = document.getElementById('silver-report-summary-solo');
+        const silverNetPositionSoloEl = document.getElementById('silver-net-position-solo');
+
+        // New Report Sub-nav Elements
+        const reportOverallViewEl = document.getElementById('report-overall-view');
+        const reportGoldViewEl = document.getElementById('report-gold-view');
+        const reportSilverViewEl = document.getElementById('report-silver-view');
+        const reportNavLinks = document.querySelectorAll('.report-nav-link');
+
+        // New Edit Modal Elements
+        const editModalEl = document.getElementById('edit-modal');
+        const editModalTitleEl = document.getElementById('edit-modal-title');
+        const editTradeFormEl = document.getElementById('edit-trade-form');
+        const editTradeIdEl = document.getElementById('edit-trade-id');
+        const editBuyAmountEl = document.getElementById('edit-buy-amount');
+        const editSellAmountEl = document.getElementById('edit-sell-amount');
+        const editErrorMessageEl = document.getElementById('edit-error-message');
+        const editCancelButtonEl = document.getElementById('edit-cancel-button');
+        
+        // New Delete Modal Elements
+        const deleteModalEl = document.getElementById('delete-modal');
+        const deleteTradeIdEl = document.getElementById('delete-trade-id');
+        const deleteCancelButtonEl = document.getElementById('delete-cancel-button');
+        const deleteConfirmButtonEl = document.getElementById('delete-confirm-button');
+
+
+        // --- Utility Functions ---
+
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/');
+        };
+
+        const toStorageDate = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        const showModal = (title, content) => {
+            modalTitleEl.textContent = title;
+            modalContentEl.textContent = content;
+            modalEl.classList.remove('hidden');
+            modalEl.classList.add('flex');
+        };
+
+        modalCloseEl.addEventListener('click', () => {
+            modalEl.classList.add('hidden');
+            modalEl.classList.remove('flex');
+        });
+        
+        const getMondayOfWeek = (date) => {
+            if (!date) {
+                // Handle cases where timestamp might be null or pending (serverTimestamp)
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                let day = now.getDay();
+                let daysToSubtract = day === 0 ? 6 : day - 1;
+                now.setDate(now.getDate() - daysToSubtract);
+                return toStorageDate(now);
+            }
+            const d = date.toDate ? date.toDate() : new Date(date);
+            d.setHours(0, 0, 0, 0);
+            let day = d.getDay(); 
+            let daysToSubtract = day === 0 ? 6 : day - 1; // 0=Sunday, 1=Monday
+            d.setDate(d.getDate() - daysToSubtract);
+            return toStorageDate(d);
+        };
+
+
+        // --- Page Routing (Simulating MPA) ---
+        
+        const showReportSubView = (hash) => {
+            if (hash === '#report') hash = '#report-overall'; // Default
+
+            const viewMap = {
+                '#report-overall': reportOverallViewEl,
+                '#report-gold': reportGoldViewEl,
+                '#report-silver': reportSilverViewEl
+            };
+
+            // Hide all report sub-views
+            Object.values(viewMap).forEach(el => {
+                if(el) el.style.display = 'none';
+            });
+            
+            // Style links
+            reportNavLinks.forEach(link => {
+                link.classList.remove('bg-green-600', 'text-white', 'hover:bg-green-500');
+                link.classList.add('text-gray-300', 'hover:bg-gray-700');
+            });
+
+            // Show target view
+            const targetEl = viewMap[hash];
+            if (targetEl) {
+                targetEl.style.display = 'block';
+                const activeLink = document.querySelector(`.report-nav-link[href="${hash}"]`);
+                if(activeLink) {
+                    activeLink.classList.remove('text-gray-300', 'hover:bg-gray-700');
+                    activeLink.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
+                }
+            } else {
+                 // Fallback if hash is invalid, e.g. #report-something-else
+                reportOverallViewEl.style.display = 'block';
+                const activeLink = document.querySelector('.report-nav-link[href="#report-overall"]');
+                if(activeLink) {
+                    activeLink.classList.remove('text-gray-300', 'hover:bg-gray-700');
+                    activeLink.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
+                }
+            }
+        };
+
+        const showView = (hash) => {
+            const viewMap = {
+                '#dashboard': dashboardViewEl,
+                '#gold': goldViewEl,
+                '#silver': silverViewEl,
+                '#report': reportViewEl
+            };
+
+            // Hide all views
+            Object.values(viewMap).forEach(el => el.style.display = 'none');
+            
+            // Update nav link styles
+            navLinks.forEach(link => {
+                link.classList.remove('bg-yellow-600', 'bg-blue-600', 'bg-green-600', 'text-gray-900', 'text-white');
+                link.classList.add('text-gray-300');
+            });
+
+            // Show the target view
+            const targetEl = viewMap[hash];
+            if (targetEl) {
+                targetEl.style.display = 'block';
+                const activeLink = document.querySelector(`.nav-link[href="${hash}"]`);
+                if (activeLink) {
+                    activeLink.classList.remove('text-gray-300');
+                    if (hash === '#gold') {
+                        activeLink.classList.add('bg-yellow-600', 'text-gray-900', 'hover:bg-yellow-500');
+                    } else if (hash === '#silver') {
+                        activeLink.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
+                    } else if (hash === '#report') {
+                        activeLink.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
+                    } else { // Dashboard
+                         activeLink.classList.add('bg-yellow-600', 'text-gray-900', 'hover:bg-yellow-500');
+                    }
+                }
+            } else {
+                window.location.hash = '#dashboard';
+            }
+        };
+
+        const handleHashChange = () => {
+            let hash = window.location.hash || '#dashboard';
+
+            if (hash.startsWith('#report')) {
+                showView('#report'); // Show the main Report page container
+                showReportSubView(hash); // Show the correct sub-view
+            } else {
+                showView(hash); // Handle all other pages
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        
+        // --- Firebase Initialization and Authentication ---
+
+        try {
+            setLogLevel('debug');
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            authStatusEl.textContent = 'Initializing...';
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            authStatusEl.textContent = 'Error initializing Firebase.';
+        }
+
+        const authenticateUser = async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                authStatusEl.textContent = `Authentication Error: ${error.message}`;
+                [goldSubmitButton, silverSubmitButton].forEach(btn => btn.disabled = true);
+                showModal("Authentication Error", "Could not sign in to the database.");
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                isAuthReady = true;
+                authStatusEl.textContent = 'Authenticated successfully.';
+                displayUserIdEl.textContent = userId;
+                [goldSubmitButton, silverSubmitButton].forEach(btn => btn.disabled = false);
+                listenForTrades();
+
+                // Refactored: Add event delegation for delete AND edit buttons
+                goldTradesBodyEl.addEventListener('click', handleTableAction);
+                silverTradesBodyEl.addEventListener('click', handleTableAction);
+            } else {
+                authenticateUser();
+            }
+        });
+
+        // --- Firestore Data Functions ---
+
+        const getTradesCollectionPath = () => {
+            if (!userId) {
+                console.error("User ID is not available.");
+                return null;
+            }
+            return `artifacts/${appId}/users/${userId}/commodity_trades`;
+        };
+
+        const saveTrade = async (tradeData, commodity) => {
+            if (!db || !userId) {
+                showModal("Error", "Database not ready or user not authenticated.");
+                return;
+            }
+
+            const path = getTradesCollectionPath();
+            if (!path) return;
+
+            try {
+                await addDoc(collection(db, path), {
+                    ...tradeData,
+                    commodity: commodity, // 'gold' or 'silver'
+                    timestamp: serverTimestamp(), 
+                    date: toStorageDate(new Date()), 
+                });
+                
+                // Reset the correct form
+                if(commodity === 'gold') {
+                    goldTradeFormEl.reset();
+                } else {
+                    silverTradeFormEl.reset();
+                }
+                
+                window.location.hash = '#dashboard';
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showModal("Save Error", "Failed to save the trade entry. See console for details.");
+            }
+        };
+
+        // Updated Delete Function - now opens modal
+        const openDeleteModal = (tradeId) => {
+            deleteTradeIdEl.value = tradeId;
+            deleteModalEl.classList.remove('hidden');
+            deleteModalEl.classList.add('flex');
+        };
+        
+        const deleteTrade = async (tradeId) => {
+            if (!db || !userId || !tradeId) {
+                showModal("Error", "Database not ready or user not authenticated.");
+                return;
+            }
+            
+            const tradeDocRef = doc(db, getTradesCollectionPath(), tradeId);
+            
+            try {
+                await deleteDoc(tradeDocRef);
+                // Snapshot listener will auto-update the UI.
+                deleteModalEl.classList.add('hidden'); // Close modal on success
+                deleteModalEl.classList.remove('flex');
+            } catch (error) {
+                console.error("Error deleting trade: ", error);
+                showModal("Delete Error", "Could not delete the trade. See console for details.");
+            }
+        };
+
+        // New Update/Edit Function
+        const updateTrade = async (tradeId, newData) => {
+            if (!db || !userId) {
+                showModal("Error", "Database not ready or user not authenticated.");
+                return;
+            }
+            
+            const tradeDocRef = doc(db, getTradesCollectionPath(), tradeId);
+            
+            try {
+                await updateDoc(tradeDocRef, newData);
+                // Snapshot listener will auto-update the UI.
+                // Close modal
+                editModalEl.classList.add('hidden');
+                editModalEl.classList.remove('flex');
+            } catch (error) {
+                console.error("Error updating trade: ", error);
+                editErrorMessageEl.textContent = "Could not save changes. See console.";
+                editErrorMessageEl.classList.remove('hidden');
+            }
+        };
+
+
+        // New Consolidated Click Handler for tables
+        const handleTableAction = (e) => {
+            const target = e.target.closest('button'); // Find the button clicked
+            if (!target) return;
+
+            const tradeId = target.dataset.id;
+            if (!tradeId) return;
+
+            if (target.classList.contains('delete-trade-btn')) {
+                openDeleteModal(tradeId); // Open modal instead of deleting directly
+            } else if (target.classList.contains('edit-trade-btn')) {
+                const { id, commodity, buy, sell } = target.dataset;
+                openEditModal({ id, commodity, buy, sell });
+            }
+        };
+
+        // New function to open and populate the edit modal
+        const openEditModal = ({ id, commodity, buy, sell }) => {
+            editTradeIdEl.value = id;
+            editBuyAmountEl.value = buy;
+            editSellAmountEl.value = sell;
+            editModalTitleEl.textContent = `Edit ${commodity} Trade`;
+            editErrorMessageEl.classList.add('hidden'); // Clear old errors
+            
+            // Show the modal
+            editModalEl.classList.remove('hidden');
+            editModalEl.classList.add('flex');
+        };
+
+
+        const listenForTrades = () => {
+            if (!db || !isAuthReady) return;
+
+            const path = getTradesCollectionPath();
+            if (!path) return;
+
+            const q = query(collection(db, path), orderBy("timestamp", "desc"));
+
+            onSnapshot(q, (querySnapshot) => {
+                const trades = [];
+                querySnapshot.forEach((doc) => {
+                    trades.push({ id: doc.id, ...doc.data() });
+                });
+                
+                allTradesData = trades.reverse(); // Store oldest first
+
+                // Update all parts of the UI
+                updateDashboardAndReport(allTradesData); 
+                renderHistoryTable('gold', goldTradesBodyEl, goldLoadingMessageEl);
+                renderHistoryTable('silver', silverTradesBodyEl, silverLoadingMessageEl);
+
+            }, (error) => {
+                console.error("Error listening to trades:", error);
+                showModal("Real-time Error", "Failed to load real-time trade data.");
+                [goldLoadingMessageEl, silverLoadingMessageEl].forEach(el => el.textContent = "Error loading trades.");
+            });
+        };
+
+        /**
+         * Renders a filtered list of trades into the specified table.
+         * @param {string} commodity - 'gold' or 'silver'
+         * @param {HTMLElement} tableBodyEl - The <tbody> element to render into.
+         * @param {HTMLElement} loadingEl - The loading message element.
+         */
+        const renderHistoryTable = (commodity, tableBodyEl, loadingEl) => {
+            const filteredTrades = allTradesData.filter(t => t.commodity === commodity);
+            
+            tableBodyEl.innerHTML = ''; 
+
+            if (filteredTrades.length === 0) {
+                tableBodyEl.innerHTML = `<tr><td colspan="5" class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-400">No ${commodity} trades recorded yet.</td></tr>`;
+                loadingEl.style.display = 'none';
+                return;
+            }
+            
+            let currentWeekNumber = 0;
+            const weekMap = {}; 
+
+            filteredTrades.forEach((trade) => {
+                const mondayDateString = getMondayOfWeek(trade.timestamp);
+                let weekToDisplay;
+                
+                if (weekMap[mondayDateString] === undefined) {
+                    currentWeekNumber++;
+                    weekMap[mondayDateString] = currentWeekNumber;
+                }
+                weekToDisplay = weekMap[mondayDateString];
+
+                const row = tableBodyEl.insertRow();
+                row.className = 'hover:bg-gray-700 transition duration-150';
+
+                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm font-medium ${commodity === 'gold' ? 'text-yellow-400' : 'text-gray-300'}">${weekToDisplay}</div>`;
+                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm text-gray-300">${trade.date || formatDate(trade.timestamp)}</div>`;
+                
+                const buyAmount = trade.buyAmount || 0;
+                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm font-semibold ${buyAmount > 0 ? 'text-green-400' : 'text-gray-500'}">${parseFloat(buyAmount).toFixed(2)}</div>`;
+                
+                const sellAmount = trade.sellAmount || 0;
+                row.insertCell().innerHTML = `<div class="px-3 py-4 whitespace-nowrap text-sm font-semibold ${sellAmount > 0 ? 'text-red-400' : 'text-gray-500'}">${parseFloat(sellAmount).toFixed(2)}</div>`;
+                
+                // Replaced User ID with Action Buttons
+                row.insertCell().innerHTML = `
+                    <div class="px-3 py-4 whitespace-nowrap text-sm text-center flex items-center justify-start space-x-2">
+                        <button class="edit-trade-btn px-2 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-500 transition duration-150" 
+                                data-id="${trade.id}" 
+                                data-commodity="${trade.commodity}"
+                                data-buy="${buyAmount}"
+                                data-sell="${sellAmount}">
+                            Edit
+                        </button>
+                        <button class="delete-trade-btn px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-500 transition duration-150" 
+                                data-id="${trade.id}">
+                            Delete
+                        </button>
+                    </div>`;
+            });
+            loadingEl.style.display = 'none';
+        };
+
+        const updateNetPositionUI = (element, netPosition, commodity) => {
+            if (!element) return; // Add check
+            element.textContent = netPosition.toFixed(2);
+            element.classList.remove('text-green-400', 'text-red-400', 'text-gray-300', 'text-yellow-400', 'text-white');
+            if (netPosition > 0) {
+                element.classList.add('text-green-400');
+            } else if (netPosition < 0) {
+                element.classList.add('text-red-400');
+            } else {
+                if (commodity === 'Gold') element.classList.add('text-yellow-400');
+                else if (commodity === 'Silver') element.classList.add('text-gray-300');
+                else element.classList.add('text-white');
+            }
+        };
+
+        /**
+         * Calculates aggregate data and updates the Dashboard view.
+         * @param {Array<Object>} trades - All trade objects (oldest first).
+         */
+        const updateDashboardAndReport = (trades) => {
+            const goldTrades = trades.filter(t => t.commodity === 'gold');
+            const silverTrades = trades.filter(t => t.commodity === 'silver');
+            const currentMonday = getMondayOfWeek(new Date());
+
+            // --- Process Gold (All Time) ---
+            let goldTotalBuy_AllTime = 0, goldTotalSell_AllTime = 0;
+            const goldUniqueWeeks = new Set();
+            goldTrades.forEach(trade => {
+                goldTotalBuy_AllTime += (trade.buyAmount || 0);
+                goldTotalSell_AllTime += (trade.sellAmount || 0);
+                goldUniqueWeeks.add(getMondayOfWeek(trade.timestamp));
+            });
+            const netGold_AllTime = goldTotalBuy_AllTime - goldTotalSell_AllTime;
+            
+            // --- Process Gold (Current Week) ---
+            let goldTotalBuy_CurrentWeek = 0, goldTotalSell_CurrentWeek = 0;
+            let goldBuyTradeCount_CurrentWeek = 0;
+            let goldSellTradeCount_CurrentWeek = 0;
+            let goldTotalTradeCount_CurrentWeek = 0; // Total trades for the "Based on..." text
+
+            goldTrades.forEach(trade => {
+                if (getMondayOfWeek(trade.timestamp) === currentMonday) {
+                    goldTotalTradeCount_CurrentWeek++; // Count this trade
+                    const buyAmt = trade.buyAmount || 0;
+                    const sellAmt = trade.sellAmount || 0;
+                    
+                    if (buyAmt > 0) {
+                        goldTotalBuy_CurrentWeek += buyAmt;
+                        goldBuyTradeCount_CurrentWeek++;
+                    }
+                    if (sellAmt > 0) {
+                        goldTotalSell_CurrentWeek += sellAmt;
+                        goldSellTradeCount_CurrentWeek++;
+                    }
+                }
+            });
+            
+            const goldAvgBuy_CurrentWeek = goldBuyTradeCount_CurrentWeek > 0 ? (goldTotalBuy_CurrentWeek / goldBuyTradeCount_CurrentWeek) : 0;
+            const goldAvgSell_CurrentWeek = goldSellTradeCount_CurrentWeek > 0 ? (goldTotalSell_CurrentWeek / goldSellTradeCount_CurrentWeek) : 0;
+
+            // Update Dashboard
+            if(goldAvgBuyEl) goldAvgBuyEl.textContent = goldAvgBuy_CurrentWeek.toFixed(2);
+            if(goldAvgSellEl) goldAvgSellEl.textContent = goldAvgSell_CurrentWeek.toFixed(2);
+            if(goldTradeCountEl) goldTradeCountEl.textContent = `Based on ${goldTotalTradeCount_CurrentWeek} trades this week.`;
+            
+            // Update Report (All Time)
+            const goldReportText = `Based on ${goldTrades.length} trades. Total Buy: ${goldTotalBuy_AllTime.toFixed(2)}, Total Sell: ${goldTotalSell_AllTime.toFixed(2)}.`;
+            if (goldTrades.length === 0) {
+                if(goldReportSummaryEl) goldReportSummaryEl.textContent = `Based on 0 trades.`;
+                if(goldReportSummarySoloEl) goldReportSummarySoloEl.textContent = `Based on 0 trades.`;
+            } else {
+                if(goldReportSummaryEl) goldReportSummaryEl.textContent = goldReportText;
+                if(goldReportSummarySoloEl) goldReportSummarySoloEl.textContent = goldReportText;
+            }
+            
+            // Update Report
+            updateNetPositionUI(goldNetPositionEl, netGold_AllTime, 'Gold');
+            updateNetPositionUI(goldNetPositionSoloEl, netGold_AllTime, 'Gold');
+
+
+            // --- Process Silver (All Time) ---
+            let silverTotalBuy_AllTime = 0, silverTotalSell_AllTime = 0;
+            const silverUniqueWeeks = new Set();
+            silverTrades.forEach(trade => {
+                silverTotalBuy_AllTime += (trade.buyAmount || 0);
+                silverTotalSell_AllTime += (trade.sellAmount || 0);
+                silverUniqueWeeks.add(getMondayOfWeek(trade.timestamp));
+            });
+            const netSilver_AllTime = silverTotalBuy_AllTime - silverTotalSell_AllTime;
+
+            // --- Process Silver (Current Week) ---
+            let silverTotalBuy_CurrentWeek = 0, silverTotalSell_CurrentWeek = 0;
+            let silverBuyTradeCount_CurrentWeek = 0;
+            let silverSellTradeCount_CurrentWeek = 0;
+            let silverTotalTradeCount_CurrentWeek = 0;
+
+            silverTrades.forEach(trade => {
+                if (getMondayOfWeek(trade.timestamp) === currentMonday) {
+                    silverTotalTradeCount_CurrentWeek++; // Count this trade
+                    const buyAmt = trade.buyAmount || 0;
+                    const sellAmt = trade.sellAmount || 0;
+
+                    if (buyAmt > 0) {
+                        silverTotalBuy_CurrentWeek += buyAmt;
+                        silverBuyTradeCount_CurrentWeek++;
+                    }
+                    if (sellAmt > 0) {
+                        silverTotalSell_CurrentWeek += sellAmt;
+                        silverSellTradeCount_CurrentWeek++;
+                    }
+                }
+            });
+            
+            const silverAvgBuy_CurrentWeek = silverBuyTradeCount_CurrentWeek > 0 ? (silverTotalBuy_CurrentWeek / silverBuyTradeCount_CurrentWeek) : 0;
+            const silverAvgSell_CurrentWeek = silverSellTradeCount_CurrentWeek > 0 ? (silverTotalSell_CurrentWeek / silverSellTradeCount_CurrentWeek) : 0;
+
+            // Update Dashboard
+            if(silverAvgBuyEl) silverAvgBuyEl.textContent = silverAvgBuy_CurrentWeek.toFixed(2);
+            if(silverAvgSellEl) silverAvgSellEl.textContent = silverAvgSell_CurrentWeek.toFixed(2);
+            if(silverTradeCountEl) silverTradeCountEl.textContent = `Based on ${silverTotalTradeCount_CurrentWeek} trades this week.`;
+
+            // Update Report (All Time)
+            const silverReportText = `Based on ${silverTrades.length} trades. Total Buy: ${silverTotalBuy_AllTime.toFixed(2)}, Total Sell: ${silverTotalSell_AllTime.toFixed(2)}.`;
+            if (silverTrades.length === 0) {
+                if(silverReportSummaryEl) silverReportSummaryEl.textContent = `Based on 0 trades.`;
+                if(silverReportSummarySoloEl) silverReportSummarySoloEl.textContent = `Based on 0 trades.`;
+            } else {
+                if(silverReportSummaryEl) silverReportSummaryEl.textContent = silverReportText;
+                if(silverReportSummarySoloEl) silverReportSummarySoloEl.textContent = silverReportText;
+            }
+            
+            // Update Report
+            updateNetPositionUI(silverNetPositionEl, netSilver_AllTime, 'Silver');
+            updateNetPositionUI(silverNetPositionSoloEl, netSilver_AllTime, 'Silver');
+            
+            // --- Process Combined Report (All Time) ---
+            const netCombined_AllTime = netGold_AllTime + netSilver_AllTime;
+            const combinedReportText = `Combined net position across ${goldTrades.length + silverTrades.length} total trades.`;
+            if(combinedReportSummaryEl) combinedReportSummaryEl.textContent = combinedReportText;
+            updateNetPositionUI(combinedNetPositionEl, netCombined_AllTime, 'Combined');
+        };
+
+        // --- Event Listeners ---
+
+        const handleTradeSubmit = (e, commodity) => {
+            e.preventDefault();
+            
+            const [buyInputId, sellInputId, errorMsgEl] = commodity === 'gold' 
+                ? ['gold-buy-amount', 'gold-sell-amount', goldErrorMessageEl]
+                : ['silver-buy-amount', 'silver-sell-amount', silverErrorMessageEl];
+
+            if(!errorMsgEl) return; // Add check
+            errorMsgEl.classList.add('hidden');
+            
+            // Get values, treat empty strings as 0
+            const buyAmountStr = document.getElementById(buyInputId).value;
+            const sellAmountStr = document.getElementById(sellInputId).value;
+
+            const buyAmount = buyAmountStr === '' ? 0 : parseFloat(buyAmountStr);
+            const sellAmount = sellAmountStr === '' ? 0 : parseFloat(sellAmountStr);
+
+            if (isNaN(buyAmount) || isNaN(sellAmount)) {
+                errorMsgEl.textContent = "Please enter valid numbers.";
+                errorMsgEl.classList.remove('hidden');
+                return;
+            }
+
+            if (buyAmount === 0 && sellAmount === 0) {
+                errorMsgEl.textContent = "Please enter a Buy or Sell Amount.";
+                errorMsgEl.classList.remove('hidden');
+                return;
+            }
+            
+            saveTrade({ buyAmount, sellAmount }, commodity);
+        };
+
+        if(goldTradeFormEl) goldTradeFormEl.addEventListener('submit', (e) => handleTradeSubmit(e, 'gold'));
+        if(silverTradeFormEl) silverTradeFormEl.addEventListener('submit', (e) => handleTradeSubmit(e, 'silver'));
+
+        // New Edit Modal Listeners
+        if(editCancelButtonEl) editCancelButtonEl.addEventListener('click', () => {
+            editModalEl.classList.add('hidden');
+            editModalEl.classList.remove('flex');
+        });
+        
+        if(editTradeFormEl) editTradeFormEl.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if(editErrorMessageEl) editErrorMessageEl.classList.add('hidden');
+            
+            const tradeId = editTradeIdEl.value;
+            const buyAmountStr = editBuyAmountEl.value;
+            const sellAmountStr = editSellAmountEl.value;
+
+            const buyAmount = buyAmountStr === '' ? 0 : parseFloat(buyAmountStr);
+            const sellAmount = sellAmountStr === '' ? 0 : parseFloat(sellAmountStr);
+
+            if (isNaN(buyAmount) || isNaN(sellAmount)) {
+                if(editErrorMessageEl) {
+                    editErrorMessageEl.textContent = "Please enter valid numbers.";
+                    editErrorMessageEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (buyAmount === 0 && sellAmount === 0) {
+                if(editErrorMessageEl) {
+                    editErrorMessageEl.textContent = "Please enter a Buy or Sell Amount.";
+                    editErrorMessageEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            updateTrade(tradeId, { buyAmount, sellAmount });
+        });
+        
+        // New Delete Modal Listeners
+        if(deleteCancelButtonEl) deleteCancelButtonEl.addEventListener('click', () => {
+            deleteModalEl.classList.add('hidden');
+            deleteModalEl.classList.remove('flex');
+        });
+        
+        if(deleteConfirmButtonEl) deleteConfirmButtonEl.addEventListener('click', () => {
+            const tradeId = deleteTradeIdEl.value;
+            deleteTrade(tradeId);
+        });
+
+
+        // --- Initial Page Load ---
+        // Run handleHashChange once the script is loaded to show the correct initial view
+        document.addEventListener('DOMContentLoaded', handleHashChange);
+        // Also call it directly in case DOMContentLoaded has already fired
+        handleHashChange();
+        
+    </script>
+</body>
+</html>
