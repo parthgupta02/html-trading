@@ -84,6 +84,12 @@
             <div id="register-view" class="page-view max-w-md mx-auto bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
                 <h2 class="text-3xl font-bold text-center text-white mb-6">Create Account</h2>
                 <form id="register-form" class="space-y-4">
+                    <!-- NEW FIELD -->
+                    <div>
+                        <label for="register-full-name" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                        <input type="text" id="register-full-name" required placeholder="Enter your full name"
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
                     <div>
                         <!-- CHANGED from Username to Mobile Number -->
                         <label for="register-username" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
@@ -1359,6 +1365,25 @@
             }
         };
 
+        // NEW: Create Profile Document
+        // This is called right after registration
+        const createProfileDocument = async (newUserId, fullName, email = '') => {
+            if (!newUserId) return;
+            const docRef = doc(db, 'artifacts', appId, 'user_profiles', newUserId);
+            const details = {
+                fullName: fullName,
+                email: email
+            };
+            try {
+                // Use setDoc (not merge) to create the new document
+                await setDoc(docRef, details);
+                console.log("Initial profile created for user:", newUserId);
+            } catch (error) {
+                console.error("Error creating initial profile:", error);
+                // Don't show modal, just log it. Login will proceed.
+            }
+        };
+
 
         const saveTrade = async (tradeData, commodity) => {
             if (!db || !userId) {
@@ -1672,9 +1697,20 @@
         
         if(registerFormEl) registerFormEl.addEventListener('submit', async (e) => {
             e.preventDefault();
+            // NEW: Get Full Name
+            const fullName = document.getElementById('register-full-name').value;
             const mobileNumber = document.getElementById('register-username').value;
             const password = document.getElementById('register-password').value;
             if(registerErrorEl) registerErrorEl.classList.add('hidden');
+            
+            // NEW: Validate Full Name
+            if (fullName.trim() === '') {
+                if(registerErrorEl) {
+                    registerErrorEl.textContent = "Please enter your full name.";
+                    registerErrorEl.classList.remove('hidden');
+                }
+                return;
+            }
             
             // Validate 10 digit number
             if (!/^\d{10}$/.test(mobileNumber)) {
@@ -1689,7 +1725,15 @@
             const email = PHONE_PREFIX + mobileNumber + FAKE_DOMAIN;
 
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                // await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
+
+                // NEW: After user is created, save their profile name
+                if (newUser && newUser.uid) {
+                    await createProfileDocument(newUser.uid, fullName, ""); // Pass in the new UID and full name
+                }
+                
                 // Auth state change will handle the rest
                 window.location.hash = '#dashboard';
             } catch (error) {
